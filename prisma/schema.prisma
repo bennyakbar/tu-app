@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN_TU
+  BENDAHARA
+  YAYASAN
+}
+
+enum StudentCategory {
+  REGULER
+  SUBSIDI
+}
+
+enum FeeTypeCategory {
+  RUTIN
+  NON_RUTIN
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  password_hash String
+  role          Role
+  is_active     Boolean   @default(true)
+  created_at    DateTime  @default(now())
+
+  payments      Payment[]
+  receipts      Receipt[]
+
+  @@map("users")
+}
+
+model Class {
+  id         String    @id @default(uuid())
+  name       String
+  level      Int       // 1-6
+  is_active  Boolean   @default(true)
+  created_at DateTime  @default(now())
+
+  students   Student[]
+  spp_rates  SppRate[]
+
+  @@map("classes")
+}
+
+model Student {
+  id           String          @id @default(uuid())
+  nis          String          @unique
+  name         String
+  class_id     String
+  spp_category StudentCategory
+  is_active    Boolean         @default(true)
+  created_at   DateTime        @default(now())
+
+  class        Class     @relation(fields: [class_id], references: [id])
+  payments     Payment[]
+  receipts     Receipt[]
+
+  @@map("students")
+}
+
+model AcademicYear {
+  id         String    @id @default(uuid())
+  name       String
+  is_active  Boolean   @default(false)
+  created_at DateTime  @default(now())
+
+  payments   Payment[]
+  spp_rates  SppRate[]
+
+  @@map("academic_years")
+}
+
+model FeeType {
+  id         String          @id @default(uuid())
+  name       String
+  type       FeeTypeCategory
+  is_spp     Boolean         @default(false)
+  is_active  Boolean         @default(true)
+  created_at DateTime        @default(now())
+
+  payments   Payment[]
+
+  @@map("fee_types")
+}
+
+model SppRate {
+  id               String          @id @default(uuid())
+  class_id         String
+  category         StudentCategory
+  amount           Decimal
+  academic_year_id String
+  is_active        Boolean         @default(true)
+  created_at       DateTime        @default(now())
+
+  class         Class        @relation(fields: [class_id], references: [id])
+  academic_year AcademicYear @relation(fields: [academic_year_id], references: [id])
+
+  @@map("spp_rates")
+}
+
+model Payment {
+  id               String    @id @default(uuid())
+  student_id       String
+  fee_type_id      String
+  academic_year_id String
+  month            Int?      // 1-12, null for non-rutin
+  amount_paid      Decimal
+  payment_date     DateTime
+  created_by       String
+  created_at       DateTime  @default(now())
+
+  student       Student      @relation(fields: [student_id], references: [id])
+  fee_type      FeeType      @relation(fields: [fee_type_id], references: [id])
+  academic_year AcademicYear @relation(fields: [academic_year_id], references: [id])
+  user          User         @relation(fields: [created_by], references: [id])
+  receipt_items ReceiptItem[]
+
+  @@map("payments")
+}
+
+model Receipt {
+  id             String    @id @default(uuid())
+  receipt_number String    @unique // MINF-YYYYMM-XXXX
+  student_id     String
+  receipt_date   DateTime
+  total_amount   Decimal
+  created_by     String
+  created_at     DateTime  @default(now())
+
+  student       Student       @relation(fields: [student_id], references: [id])
+  user          User          @relation(fields: [created_by], references: [id])
+  receipt_items ReceiptItem[]
+
+  @@map("receipts")
+}
+
+model ReceiptItem {
+  id         String @id @default(uuid())
+  receipt_id String
+  payment_id String
+
+  receipt Receipt @relation(fields: [receipt_id], references: [id])
+  payment Payment @relation(fields: [payment_id], references: [id])
+
+  @@map("receipt_items")
+}
