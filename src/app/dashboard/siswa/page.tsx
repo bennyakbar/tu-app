@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { StudentForm } from "@/components/siswa/StudentForm";
 import { StudentList } from "@/components/siswa/StudentList";
+import { ImportStudentButton } from "@/components/siswa/ImportStudentButton";
 import { Users } from "lucide-react";
 
 export const runtime = "nodejs";
@@ -30,7 +31,10 @@ export default async function SiswaPage() {
                     </div>
                     <h1 className="text-2xl font-bold">Data Siswa</h1>
                 </div>
-                <StudentForm classes={classes} />
+                <div className="flex gap-2">
+                    <ImportStudentButton />
+                    <StudentForm classes={classes} />
+                </div>
             </div>
 
             <StudentList students={students} classes={classes} />

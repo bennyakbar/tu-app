@@ -21,6 +21,40 @@ async function main() {
         console.log("Admin User already exists.");
     }
 
+    // Seed Bendahara
+    const bendaharaEmail = "bendahara@sekolah.id";
+    const existingBendahara = await prisma.user.findUnique({ where: { email: bendaharaEmail } });
+    if (!existingBendahara) {
+        const password_hash = await bcrypt.hash("bendahara123", 10);
+        await prisma.user.create({
+            data: {
+                name: "Staff Bendahara",
+                email: bendaharaEmail,
+                password_hash,
+                role: "BENDAHARA",
+                is_active: true,
+            },
+        });
+        console.log("Created Bendahara: bendahara@sekolah.id / bendahara123");
+    }
+
+    // Seed Yayasan
+    const yayasanEmail = "yayasan@sekolah.id";
+    const existingYayasan = await prisma.user.findUnique({ where: { email: yayasanEmail } });
+    if (!existingYayasan) {
+        const password_hash = await bcrypt.hash("yayasan123", 10);
+        await prisma.user.create({
+            data: {
+                name: "Ketua Yayasan",
+                email: yayasanEmail,
+                password_hash,
+                role: "YAYASAN",
+                is_active: true,
+            },
+        });
+        console.log("Created Yayasan: yayasan@sekolah.id / yayasan123");
+    }
+
     // Optional: Seed Academic Year if empty
     const year = await prisma.academicYear.findFirst();
     if (!year) {

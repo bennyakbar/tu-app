@@ -1,8 +1,9 @@
 'use client'
 
-import { toggleFeeTypeStatus } from "@/app/actions/master_fee"
-import { Loader2, ToggleLeft, ToggleRight } from "lucide-react"
-import { useState } from "react"
+import { toggleFeeTypeStatus, deleteFeeType } from "@/app/actions/master_fee"
+import { Loader2, ToggleLeft, ToggleRight, Trash2 } from "lucide-react"
+import { useState, useTransition } from "react"
+import { toast } from "sonner"
 
 type FeeTypeItem = {
     id: string
@@ -14,11 +15,22 @@ type FeeTypeItem = {
 
 export function FeeTypeList({ data }: { data: FeeTypeItem[] }) {
     const [loadingId, setLoadingId] = useState<string | null>(null)
+    const [isPending, startTransition] = useTransition()
 
     const handleToggle = async (id: string, currentStatus: boolean) => {
         setLoadingId(id)
         await toggleFeeTypeStatus(id, currentStatus)
         setLoadingId(null)
+    }
+
+    const handleDelete = (id: string, name: string) => {
+        if (confirm(`Yakin ingin menghapus ${name}? Hanya bisa dilakukan jika belum ada transaksi.`)) {
+            startTransition(async () => {
+                const res = await deleteFeeType(id)
+                if (res.error) toast.error(res.error)
+                else toast.success(res.success)
+            })
+        }
     }
 
     return (
@@ -66,18 +78,28 @@ export function FeeTypeList({ data }: { data: FeeTypeItem[] }) {
                                 )}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button
-                                    onClick={() => handleToggle(item.id, item.is_active)}
-                                    disabled={loadingId !== null}
-                                    className={`${item.is_active ? 'text-green-600' : 'text-gray-400'} hover:opacity-80 transition-colors inline-flex items-center`}
-                                    title={item.is_active ? "Nonaktifkan" : "Aktifkan"}
-                                >
-                                    {loadingId === item.id ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        item.is_active ? <ToggleRight className="w-6 h-6" /> : <ToggleLeft className="w-6 h-6" />
-                                    )}
-                                </button>
+                                <div className="flex justify-end gap-2">
+                                    <button
+                                        onClick={() => handleDelete(item.id, item.name)}
+                                        disabled={isPending}
+                                        className="text-red-400 hover:text-red-600 transition-colors p-1"
+                                        title="Hapus Permanen"
+                                    >
+                                        <Trash2 className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleToggle(item.id, item.is_active)}
+                                        disabled={loadingId !== null}
+                                        className={`${item.is_active ? 'text-green-600' : 'text-gray-400'} hover:opacity-80 transition-colors inline-flex items-center p-1`}
+                                        title={item.is_active ? "Nonaktifkan" : "Aktifkan"}
+                                    >
+                                        {loadingId === item.id ? (
+                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                        ) : (
+                                            item.is_active ? <ToggleRight className="w-6 h-6" /> : <ToggleLeft className="w-6 h-6" />
+                                        )}
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     ))}

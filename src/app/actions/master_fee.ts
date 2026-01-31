@@ -63,3 +63,25 @@ export async function toggleFeeTypeStatus(id: string, currentStatus: boolean) {
         return { error: "Gagal mengubah status" }
     }
 }
+
+export async function deleteFeeType(id: string) {
+    try {
+        // Safe Delete Check: Are there payments?
+        const count = await prisma.payment.count({
+            where: { fee_type_id: id }
+        })
+
+        if (count > 0) {
+            return { error: `Tidak bisa dihapus karena ada ${count} data pembayaran terkait. Non-aktifkan saja.` }
+        }
+
+        await prisma.feeType.delete({
+            where: { id }
+        })
+
+        revalidatePath('/dashboard/master/biaya')
+        return { success: "Jenis biaya berhasil dihapus permanen" }
+    } catch (e) {
+        return { error: "Gagal menghapus data" }
+    }
+}

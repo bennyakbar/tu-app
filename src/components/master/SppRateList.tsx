@@ -2,8 +2,9 @@
 
 import { deleteSppRate } from "@/app/actions/master_spp"
 import { formatIDR } from "@/lib/utils"
-import { Loader2, Trash2 } from "lucide-react"
+import { Loader2, Trash2, Pencil } from "lucide-react"
 import { useState } from "react"
+import { EditSppRateForm } from "./EditSppRateForm"
 
 type SppRateItem = {
     id: string
@@ -15,6 +16,7 @@ type SppRateItem = {
 
 export function SppRateList({ data }: { data: SppRateItem[] }) {
     const [loadingId, setLoadingId] = useState<string | null>(null)
+    const [editingItem, setEditingItem] = useState<SppRateItem | null>(null)
 
     const handleDelete = async (id: string) => {
         if (!confirm("Hapus tarif ini?")) return
@@ -56,18 +58,34 @@ export function SppRateList({ data }: { data: SppRateItem[] }) {
                                 {formatIDR(item.amount)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button
-                                    onClick={() => handleDelete(item.id)}
-                                    disabled={loadingId !== null}
-                                    className="text-red-600 hover:text-red-800 transition-colors inline-flex items-center"
-                                >
-                                    {loadingId === item.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                                </button>
+                                <div className="flex justify-end gap-2">
+                                    <button
+                                        onClick={() => setEditingItem(item)}
+                                        className="text-indigo-400 hover:text-indigo-600 transition-colors p-1"
+                                        title="Edit Nominal"
+                                    >
+                                        <Pencil className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(item.id)}
+                                        disabled={loadingId !== null}
+                                        className="text-red-600 hover:text-red-800 transition-colors inline-flex items-center p-1"
+                                    >
+                                        {loadingId === item.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+
+            {editingItem && (
+                <EditSppRateForm
+                    rate={editingItem}
+                    onClose={() => setEditingItem(null)}
+                />
+            )}
         </div>
     )
 }

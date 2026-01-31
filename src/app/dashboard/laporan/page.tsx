@@ -58,11 +58,27 @@ export default async function LaporanPage() {
             <h1 className="text-2xl font-bold">Laporan & Rekapitulasi</h1>
 
             {isYayasan && (
-                <div className="p-4 bg-yellow-50 text-yellow-800 rounded-lg flex items-center">
+                <div className="p-4 bg-yellow-50 text-yellow-800 rounded-lg flex items-center mb-6">
                     <AlertCircle className="w-5 h-5 mr-2" />
                     Akun Yayasan hanya dapat melihat Dashboard Ringkasan (View-Only).
                 </div>
             )}
+
+            {/* Quick Links */}
+            <div className="grid grid-cols-1 mb-6">
+                <a
+                    href="/dashboard/laporan/tunggakan"
+                    className="block p-4 bg-white dark:bg-gray-800 border-l-4 border-red-500 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+                >
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200 group-hover:text-red-600">Laporan Tunggakan SPP</h3>
+                            <p className="text-gray-500 text-sm">Cek siswa yang belum melunasi kewajiban bulanan.</p>
+                        </div>
+                        <AlertCircle className="w-6 h-6 text-red-400 group-hover:text-red-600" />
+                    </div>
+                </a>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Excel Download Form */}

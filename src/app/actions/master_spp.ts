@@ -73,3 +73,24 @@ export async function deleteSppRate(id: string) {
         return { error: "Gagal menghapus tari. Tarif mungkin sudah digunakan." }
     }
 }
+
+export async function updateSppRate(prevState: any, formData: FormData) {
+    const id = formData.get("id") as string
+    const amount = formData.get("amount")
+
+    if (!id || !amount) return { error: "Data tidak valid" }
+
+    const parsedAmount = Number(amount)
+    if (isNaN(parsedAmount) || parsedAmount < 0) return { error: "Nominal tidak valid" }
+
+    try {
+        await prisma.sppRate.update({
+            where: { id },
+            data: { amount: parsedAmount }
+        })
+        revalidatePath('/dashboard/master/tarif-spp')
+        return { success: "Nominal tarif berhasil diperbarui" }
+    } catch (e) {
+        return { error: "Gagal update tarif" }
+    }
+}
