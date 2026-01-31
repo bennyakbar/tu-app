@@ -118,7 +118,7 @@ export async function generateExcelReport(month: number, year: number) {
     const wb = XLSX.utils.book_new();
 
     // Sheet 1: Pemasukan (Income Log)
-    const incomeData = payments.map(p => ({
+    const incomeData: any[] = payments.map((p: any) => ({
         Tanggal: p.payment_date.toISOString().split('T')[0],
         NIS: p.student.nis,
         Nama: p.student.name,
@@ -126,6 +126,19 @@ export async function generateExcelReport(month: number, year: number) {
         Bulan_Bayar: p.month,
         Jumlah: Number(p.amount_paid)
     }));
+
+    // Add Total Row
+    const totalIncome = incomeData.reduce((acc, curr) => acc + (curr.Jumlah || 0), 0);
+    incomeData.push({}); // Empty row
+    incomeData.push({
+        Tanggal: "TOTAL PEMASUKAN",
+        NIS: "",
+        Nama: "",
+        Kelas: "",
+        Bulan_Bayar: "",
+        Jumlah: totalIncome
+    });
+
     const ws1 = XLSX.utils.json_to_sheet(incomeData);
     XLSX.utils.book_append_sheet(wb, ws1, "Pemasukan SPP");
 

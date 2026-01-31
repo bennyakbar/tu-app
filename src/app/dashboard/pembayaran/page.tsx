@@ -3,15 +3,13 @@ import prisma from "@/lib/prisma";
 import { Search, User } from "lucide-react";
 import { redirect } from "next/navigation";
 
-export default async function PembayaranListPage({
-    searchParams,
-}: {
-    searchParams: { q?: string };
+export default async function PembayaranListPage(props: {
+    searchParams: Promise<{ q?: string }>;
 }) {
-    const query = searchParams.q || "";
+    const searchParams = await props.searchParams;
+    const query = searchParams?.q || "";
 
-    // Only search if query is > 2 chars to save resources, or limit
-    const students = query
+    const students: any[] = query
         ? await prisma.student.findMany({
             where: {
                 OR: [
@@ -33,15 +31,20 @@ export default async function PembayaranListPage({
             </div>
 
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-                <form className="relative mb-6">
-                    <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                        name="q"
-                        defaultValue={query}
-                        placeholder="Cari nama siswa atau NIS..."
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-900 dark:text-white outline-none"
-                        autoFocus
-                    />
+                <form className="relative mb-6 flex gap-2">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                        <input
+                            name="q"
+                            defaultValue={query}
+                            placeholder="Cari nama siswa atau NIS (Tekan Enter)"
+                            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-900 dark:text-white outline-none"
+                            autoFocus
+                        />
+                    </div>
+                    <button type="submit" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
+                        Cari
+                    </button>
                 </form>
 
                 <div className="space-y-2">

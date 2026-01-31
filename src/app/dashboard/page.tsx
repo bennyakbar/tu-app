@@ -3,12 +3,19 @@ import prisma from "@/lib/prisma";
 import { formatIDR } from "@/lib/utils";
 import { DollarSign, Users, Calendar } from 'lucide-react';
 
+import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
+
 async function getStats() {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
     const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-    const [income, students, activeYear] = await Promise.all([
+    // Get 6 months history
+    const historyStart = new Date();
+    historyStart.setMonth(historyStart.getMonth() - 5);
+    historyStart.setDate(1);
+
+    const [income, students, activeYear, historicalPayments] = await Promise.all([
         prisma.payment.aggregate({
             _sum: { amount_paid: true },
             where: {
@@ -19,13 +26,39 @@ async function getStats() {
             },
         }),
         prisma.student.count({ where: { is_active: true } }),
-        prisma.academicYear.findFirst({ where: { is_active: true } })
+        prisma.academicYear.findFirst({ where: { is_active: true } }),
+        prisma.payment.findMany({
+            where: { payment_date: { gte: historyStart } },
+            select: { payment_date: true, amount_paid: true }
+        })
     ]);
+
+    // Process History
+    const monthlyData = new Map<string, number>();
+
+    // Initialize last 6 months with 0
+    for (let i = 5; i >= 0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        const label = d.toLocaleString('id-ID', { month: 'short' });
+        monthlyData.set(label, 0);
+    }
+
+    // Fill data
+    historicalPayments.forEach((p: any) => {
+        const label = p.payment_date.toLocaleString('id-ID', { month: 'short' });
+        if (monthlyData.has(label)) {
+            monthlyData.set(label, (monthlyData.get(label) || 0) + Number(p.amount_paid));
+        }
+    });
+
+    const chartData = Array.from(monthlyData).map(([name, total]) => ({ name, total }));
 
     return {
         income: income._sum.amount_paid ?? 0,
         studentCount: students,
         academicYear: activeYear?.name ?? 'Belum diset',
+        chartData
     };
 }
 
@@ -35,7 +68,7 @@ export default async function DashboardPage() {
     const stats = await getStats();
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             <div>
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                     Selamat Datang, {user?.name}
@@ -83,15 +116,8 @@ export default async function DashboardPage() {
                 </div>
             </div>
 
-            {/* Role specific content */}
-            {user?.role === 'YAYASAN' && (
-                <div className="p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-                    <h3 className="font-bold mb-4">Grafik Pemasukan (Simulasi)</h3>
-                    <div className="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-900 rounded-lg text-gray-400">
-                        Grafik akan tampil di sini (Recharts)
-                    </div>
-                </div>
-            )}
+            <DashboardCharts data={stats.chartData} />
+
         </div>
     );
 }

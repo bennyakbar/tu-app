@@ -2,9 +2,12 @@ import prisma from "@/lib/prisma";
 import { formatIDR } from "@/lib/utils";
 import { PaymentEntryForm } from "@/components/forms/PaymentEntryForm";
 import { PaymentHistoryTable } from "@/components/dashboard/PaymentHistoryTable";
+import { StudentReceiptList } from "@/components/dashboard/StudentReceiptList";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+export const runtime = "nodejs";
 
 export default async function StudentPaymentPage({
     params,
@@ -45,7 +48,7 @@ export default async function StudentPaymentPage({
         },
     });
 
-    const payments = await prisma.payment.findMany({
+    const rawPayments = await prisma.payment.findMany({
         where: { student_id: studentId },
         include: {
             fee_type: true,
@@ -54,8 +57,26 @@ export default async function StudentPaymentPage({
         orderBy: { payment_date: "desc" },
     });
 
+    // Serialize payments for client component
+    const payments = rawPayments.map((p: any) => ({
+        ...p,
+        amount_paid: p.amount_paid.toString(),
+        total_amount: p.amount_paid.toString()
+    }));
+
+    // Fetch Receipts
+    const rawReceipts = await prisma.receipt.findMany({
+        where: { student_id: studentId },
+        orderBy: { receipt_date: "desc" },
+    });
+
+    const receipts = rawReceipts.map(r => ({
+        ...r,
+        total_amount: r.total_amount.toString()
+    }));
+
     // Calculate Summary
-    const totalPaid = payments.reduce((acc, p) => acc + Number(p.amount_paid), 0);
+    const totalPaid = payments.reduce((acc: number, p: any) => acc + Number(p.amount_paid), 0);
 
     return (
         <div className="space-y-6">
@@ -100,10 +121,12 @@ export default async function StudentPaymentPage({
                 </div>
 
                 {/* Right: History Table */}
-                <div className="lg:col-span-2">
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 h-full">
+                <div className="lg:col-span-2 space-y-8">
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 h-fit">
                         <PaymentHistoryTable payments={payments} studentId={studentId} />
                     </div>
+
+                    <StudentReceiptList receipts={receipts} />
                 </div>
             </div>
         </div>

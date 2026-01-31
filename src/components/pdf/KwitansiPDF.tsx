@@ -10,61 +10,49 @@ const styles = StyleSheet.create({
     page: {
         flexDirection: 'column',
         backgroundColor: '#ffffff',
-        padding: 30,
-        fontSize: 10,
+        padding: 20, // Reduced from 30
+        fontSize: 9, // Reduced from 10
         fontFamily: 'Helvetica',
     },
     header: {
         flexDirection: 'row',
-        marginBottom: 20,
+        marginBottom: 10, // Reduced from 20
         borderBottomWidth: 1,
         borderBottomColor: '#000000',
-        paddingBottom: 10,
+        paddingBottom: 5, // Reduced
         alignItems: 'center',
     },
     logo: {
-        width: 50,
-        height: 50,
+        width: 40, // Reduced
+        height: 40,
         marginRight: 10,
     },
     schoolInfo: {
         flexDirection: 'column',
     },
     schoolName: {
-        fontSize: 16,
+        fontSize: 14, // Reduced from 16
         fontWeight: 'bold',
-        marginBottom: 4,
+        marginBottom: 2,
     },
     schoolAddress: {
-        fontSize: 9,
+        fontSize: 8, // Reduced
         color: '#555',
     },
     title: {
-        fontSize: 14,
+        fontSize: 12, // Reduced from 14
         fontWeight: 'bold',
         textAlign: 'center',
-        marginBottom: 20,
+        marginBottom: 10, // Reduced from 20
         textDecoration: 'underline',
     },
     metaContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 20,
-    },
-    metaGroup: {
-        flexDirection: 'column',
-    },
-    metaRow: {
-        flexDirection: 'row',
-        marginBottom: 4,
+        marginBottom: 10,
     },
     label: {
         width: 80,
         fontWeight: 'bold',
         color: '#555',
-    },
-    value: {
-        flex: 1,
     },
     table: {
         display: 'flex',
@@ -73,13 +61,13 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRightWidth: 0,
         borderBottomWidth: 0,
+        marginBottom: 5,
     },
     tableRow: {
         margin: 'auto',
         flexDirection: 'row',
     },
     tableColHeader: {
-        width: '25%',
         borderStyle: 'solid',
         borderWidth: 1,
         borderLeftWidth: 0,
@@ -87,37 +75,36 @@ const styles = StyleSheet.create({
         backgroundColor: '#f0f0f0',
     },
     tableCol: {
-        width: '25%',
         borderStyle: 'solid',
         borderWidth: 1,
         borderLeftWidth: 0,
         borderTopWidth: 0,
     },
     tableCellHeader: {
-        margin: 5,
-        fontSize: 9,
+        margin: 3, // Reduced from 5
+        fontSize: 8,
         fontWeight: 'bold',
     },
     tableCell: {
-        margin: 5,
-        fontSize: 9,
+        margin: 3, // Reduced from 5
+        fontSize: 8,
     },
     totalRow: {
         flexDirection: 'row',
-        marginTop: 10,
+        marginTop: 5, // Reduced
         justifyContent: 'flex-end',
     },
     totalLabel: {
         fontWeight: 'bold',
         marginRight: 10,
-        fontSize: 12,
+        fontSize: 10,
     },
     totalValue: {
         fontWeight: 'bold',
-        fontSize: 12,
+        fontSize: 10,
     },
     footer: {
-        marginTop: 40,
+        marginTop: 10, // Reduced significantly from 40
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
@@ -129,7 +116,7 @@ const styles = StyleSheet.create({
     signLine: {
         width: 120,
         borderBottomWidth: 1,
-        marginTop: 50,
+        marginTop: 40, // Reduced from 50
     },
     signName: {
         marginTop: 5,
@@ -160,14 +147,21 @@ interface KwitansiProps {
     };
 }
 
+const getMonthName = (num: number) => {
+    const months = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ];
+    return months[num - 1] || "-";
+};
+
 export const KwitansiPDF = ({ receipt }: KwitansiProps) => (
     <Document>
         <Page size="A5" orientation="landscape" style={styles.page}>
             {/* Header */}
             <View style={styles.header}>
-                {/* Placeholder Logo - In real app, use absolute path or base64 */}
-                <View style={{ width: 50, height: 50, backgroundColor: '#ddd', marginRight: 10, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ fontSize: 8 }}>LOGO</Text>
+                <View style={{ width: 60, height: 60, backgroundColor: '#f0f0f0', marginRight: 15, alignItems: 'center', justifyContent: 'center', borderRadius: 4 }}>
+                    <Text style={{ fontSize: 8, color: '#555' }}>LOGO</Text>
                 </View>
                 <View style={styles.schoolInfo}>
                     <Text style={styles.schoolName}>SD ISLAM NURUL FALAH</Text>
@@ -178,27 +172,27 @@ export const KwitansiPDF = ({ receipt }: KwitansiProps) => (
 
             <Text style={styles.title}>KWITANSI PEMBAYARAN</Text>
 
-            {/* Meta Info */}
-            <View style={styles.metaContainer}>
-                <View style={styles.metaGroup}>
-                    <View style={styles.metaRow}>
+            {/* Meta Info - Vertical Layout */}
+            <View style={{ marginBottom: 20 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                    <View style={{ flexDirection: 'row' }}>
                         <Text style={styles.label}>No. Kwitansi</Text>
-                        <Text style={styles.value}>: {receipt.receipt_number}</Text>
+                        <Text>: {receipt.receipt_number}</Text>
                     </View>
-                    <View style={styles.metaRow}>
+                    <View style={{ flexDirection: 'row' }}>
                         <Text style={styles.label}>Tanggal</Text>
-                        <Text style={styles.value}>: {new Date(receipt.receipt_date).toLocaleDateString('id-ID')}</Text>
+                        <Text>: {new Date(receipt.receipt_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</Text>
                     </View>
                 </View>
-                <View style={styles.metaGroup}>
-                    <View style={styles.metaRow}>
-                        <Text style={styles.label}>Sudah Terima Dari</Text>
-                        <Text style={styles.value}>: {receipt.student.name} ({receipt.student.nis})</Text>
-                    </View>
-                    <View style={styles.metaRow}>
-                        <Text style={styles.label}>Kelas</Text>
-                        <Text style={styles.value}>: {receipt.student.class.name}</Text>
-                    </View>
+
+                <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                    <Text style={styles.label}>Sudah Terima Dari</Text>
+                    <Text>: {receipt.student.name} ({receipt.student.nis})</Text>
+                </View>
+
+                <View style={{ flexDirection: 'row', marginBottom: 5 }}>
+                    <Text style={styles.label}>Kelas</Text>
+                    <Text>: {receipt.student.class.name}</Text>
                 </View>
             </View>
 
@@ -228,7 +222,7 @@ export const KwitansiPDF = ({ receipt }: KwitansiProps) => (
                             <Text style={styles.tableCell}>{item.academic_year.name}</Text>
                         </View>
                         <View style={[styles.tableCol, { width: '15%' }]}>
-                            <Text style={styles.tableCell}>{item.month ? item.month : '-'}</Text>
+                            <Text style={styles.tableCell}>{item.month ? getMonthName(item.month) : '-'}</Text>
                         </View>
                         <View style={[styles.tableCol, { width: '25%' }]}>
                             <Text style={styles.tableCell}>{formatIDR(Number(item.amount_paid))}</Text>
@@ -245,12 +239,10 @@ export const KwitansiPDF = ({ receipt }: KwitansiProps) => (
 
             {/* Footer / Signature */}
             <View style={styles.footer}>
+                <View style={styles.signature} />
                 <View style={styles.signature}>
-                    {/* Space for future use */}
-                </View>
-                <View style={styles.signature}>
-                    <Text>Jakarta, {new Date(receipt.receipt_date).toLocaleDateString('id-ID')}</Text>
-                    <Text>Penerima,</Text>
+                    <Text style={{ marginBottom: 40 }}>Jakarta, {new Date(receipt.receipt_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</Text>
+                    <Text style={{ marginBottom: 5 }}>Penerima,</Text>
                     <View style={styles.signLine} />
                     <Text style={styles.signName}>{receipt.created_by_user.name}</Text>
                 </View>
