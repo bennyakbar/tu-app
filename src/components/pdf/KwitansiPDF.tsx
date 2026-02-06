@@ -2,6 +2,7 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import { formatIDR } from '@/lib/utils';
+import { SCHOOL_LOGO_BASE64 } from '@/lib/logo';
 
 // Register font (optional, using standard fonts for now for speed/reliability)
 // Font.register({ family: 'Helvetica', src: '...' });
@@ -162,7 +163,7 @@ export const KwitansiPDF = ({ receipt }: KwitansiProps) => (
             <View style={styles.header}>
                 <Image
                     style={styles.logo}
-                    src={process.cwd() + '/public/logo_sekolah.png'}
+                    src={SCHOOL_LOGO_BASE64}
                 />
                 <View style={styles.schoolInfo}>
                     <Text style={styles.schoolName}>MI NURUL FALAH</Text>
