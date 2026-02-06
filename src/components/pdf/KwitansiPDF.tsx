@@ -23,9 +23,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     logo: {
-        width: 40, // Reduced
-        height: 40,
-        marginRight: 10,
+        width: 60,
+        height: 60,
+        marginRight: 15,
     },
     schoolInfo: {
         flexDirection: 'column',
@@ -160,13 +160,14 @@ export const KwitansiPDF = ({ receipt }: KwitansiProps) => (
         <Page size="A5" orientation="landscape" style={styles.page}>
             {/* Header */}
             <View style={styles.header}>
-                <View style={{ width: 60, height: 60, backgroundColor: '#f0f0f0', marginRight: 15, alignItems: 'center', justifyContent: 'center', borderRadius: 4 }}>
-                    <Text style={{ fontSize: 8, color: '#555' }}>LOGO</Text>
-                </View>
+                <Image
+                    style={styles.logo}
+                    src={process.cwd() + '/public/logo_sekolah.png'}
+                />
                 <View style={styles.schoolInfo}>
-                    <Text style={styles.schoolName}>SD ISLAM NURUL FALAH</Text>
-                    <Text style={styles.schoolAddress}>Jl. Contoh No. 123, Jakarta Selatan</Text>
-                    <Text style={styles.schoolAddress}>Telp: (021) 12345678</Text>
+                    <Text style={styles.schoolName}>MI NURUL FALAH</Text>
+                    <Text style={styles.schoolAddress}>Jl. Sukamenak Indah, Sayati, Kec. Margahayu</Text>
+                    <Text style={styles.schoolAddress}>Kabupaten Bandung, Jawa Barat 40228</Text>
                 </View>
             </View>
 
@@ -241,7 +242,7 @@ export const KwitansiPDF = ({ receipt }: KwitansiProps) => (
             <View style={styles.footer}>
                 <View style={styles.signature} />
                 <View style={styles.signature}>
-                    <Text style={{ marginBottom: 40 }}>Jakarta, {new Date(receipt.receipt_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</Text>
+                    <Text style={{ marginBottom: 40 }}>Kab. Bandung, {new Date(receipt.receipt_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</Text>
                     <Text style={{ marginBottom: 5 }}>Penerima,</Text>
                     <View style={styles.signLine} />
                     <Text style={styles.signName}>{receipt.created_by_user.name}</Text>
